@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('subscription_items', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug');
+            $table->foreignId('subscription_id');
+            $table->string('stripe_id')->unique();
             $table->string('stripe_product');
-            $table->decimal('price', 10, 2);
-            $table->string('description');
-            $table->enum('product_type', ['B2B', 'B2C'])->default('B2C');
+            $table->string('stripe_price');
+            $table->integer('quantity')->nullable();
             $table->timestamps();
+
+            $table->unique(['subscription_id', 'stripe_price']);
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('subscription_items');
     }
 };

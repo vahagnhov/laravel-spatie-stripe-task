@@ -12,7 +12,27 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        // Generate and insert 2 products
-        Product::factory(2)->create();
+        $products = [
+            [
+                'name' => 'Product 1',
+                'slug' => 'product_1',
+                'stripe_product' => config('cashier.stripe.products.product_1'),
+                'price' => 0.01,
+                'description' => 'Product 1 description',
+                'product_type' => 'B2B'
+            ],
+            [
+                'name' => 'Product 2',
+                'slug' => 'product_2',
+                'stripe_product' => config('cashier.stripe.products.product_2'),
+                'price' => 0.02,
+                'description' => 'Product 2 description',
+                'product_type' => 'B2C'
+            ]
+        ];
+
+        foreach ($products as $product) {
+            Product::create($product);
+        }
     }
 }

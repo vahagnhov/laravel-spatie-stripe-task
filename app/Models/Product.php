@@ -16,7 +16,20 @@ class Product extends Model
      */
     protected $fillable = [
         'name',
-        'detail',
-        'price'
+        'slug',
+        'stripe_product',
+        'price',
+        'description',
+        'product_type'
     ];
+
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }

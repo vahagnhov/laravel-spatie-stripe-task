@@ -64,3 +64,36 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## I chose to use the Laravel Cashier package for Stripe integration in my project. Here's why:
+
+In my opinion, this package is most suitable for our task. Laravel Cashier is a package specifically designed for 
+Laravel applications to simplify subscription billing with Stripe.
+It provides a higher-level abstraction that integrates seamlessly with Laravel's ecosystem.
+I chose Laravel Cashier for its seamless integration with Laravel, which simplified our payment processing implementation.
+With Laravel Cashier, we could easily manage subscriptions, handle payment methods, and automate tasks like invoicing
+and dunning. This package not only streamlines the Stripe integration but also aligns perfectly with Laravel's
+developer-friendly ecosystem, making it a natural choice for our project.
+
+## Stripe Configuration
+In order to integrate Stripe with this project, follow these steps to set up your Stripe API keys in the `.env` file:
+
+1. Open the `.env` file in the root directory of your project.
+
+2. Locate the following lines and replace them with your actual Stripe API keys:
+
+   `.env`
+   STRIPE_KEY=your_publishable_key
+   STRIPE_SECRET=your_secret_key
+
+3. Save the `.env` file.
+
+###### Now, your Laravel project is configured to use your Stripe account for payment processing and subscriptions.
+
+**Note:** Ensure that you keep your `.env` file secure and do not share it publicly, as it contains sensitive information.
+
+## You will need to create two products in your Stripe account, then open .env and replace those values before seeding.
+   
+  `.env`
+  STRIPE_PRODUCT_1=your_product_1_price_api_id
+  STRIPE_PRODUCT_2=your_product_2_price_api_id
