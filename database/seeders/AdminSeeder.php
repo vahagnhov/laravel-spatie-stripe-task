@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Constants\Roles;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,6 @@ class AdminSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
-        ])->assignRole('admin');
+        ])->assignRole(Roles::ADMIN);
     }
 }
