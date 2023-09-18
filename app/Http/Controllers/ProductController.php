@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PurchaseProductEmail;
 use App\Models\Product;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -47,17 +51,28 @@ class ProductController extends Controller
         return view("purchase", compact("product", "intent"));
     }
 
-    public function purchase(Request $request): View
-    {
-        $this->authorize('purchase', $request->product);
 
+    public function purchase(Request $request): RedirectResponse
+    {
         $product = $this->productRepository->findData($request->product);
+
+        $this->authorize('purchase', $product);
 
         $request->user()->newSubscription($request->product, $product->stripe_product)
             ->create($request->token);
 
+        $mailData = [
+            'user_name' => $request->name,
+        ];
+
+        try {
+            Mail::to($request->user()->email)->send(new PurchaseProductEmail($mailData));
+        } catch (\Throwable $exception) {
+            Log::error($exception);
+        }
+
         $this->userRepository->assignUserRole($request, $product->product_type);
 
-        return view("purchase_success");
+        return redirect()->route('home')->withSuccess('Product successfully purchased!');
     }
 }

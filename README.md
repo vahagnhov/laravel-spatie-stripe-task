@@ -97,3 +97,15 @@ In order to integrate Stripe with this project, follow these steps to set up you
   `.env`
   STRIPE_PRODUCT_1=your_product_1_price_api_id
   STRIPE_PRODUCT_2=your_product_2_price_api_id
+
+## Email Configuration - Update the .env file with your email credentials.
+
+     MAIL_MAILER=smtp
+     MAIL_HOST=mailpit
+     MAIL_PORT=1025
+     MAIL_USERNAME=null
+     MAIL_PASSWORD=null
+     MAIL_ENCRYPTION=null
+     MAIL_FROM_ADDRESS="hello@example.com"
+     MAIL_FROM_NAME="${APP_NAME}"
+

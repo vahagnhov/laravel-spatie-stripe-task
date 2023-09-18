@@ -15,7 +15,7 @@
                         <form id="payment-form" action="{{ route('purchase.create') }}" method="POST">
                             @csrf
                             <input type="hidden" name="product" id="product" value="{{ $product->id }}">
-
+                            <input type="text" name="card-number" id="card-number" value="">
                             <div class="row">
                                 <div class="col-xl-4 col-lg-4">
                                     <div class="form-group">
