@@ -171,6 +171,7 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         App\Providers\ProductServiceProvider::class,
         App\Providers\UserServiceProvider::class,
+        App\Providers\StripeServiceProvider::class,
     ])->toArray(),
 
     /*

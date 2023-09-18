@@ -2,5 +2,5 @@
 
 @section('content')
     <h1>Hello, {{ $mailData['user_name'] }}</h1>
-    <p>Your purchase successfully done!</p>
+    <p>Your {{ $mailData['access'] }} is closed by the administrator!</p>
 @endSection

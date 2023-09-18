@@ -15,7 +15,8 @@
                         <form id="payment-form" action="{{ route('purchase.create') }}" method="POST">
                             @csrf
                             <input type="hidden" name="product" id="product" value="{{ $product->id }}">
-                            <input type="text" name="card-number" id="card-number" value="">
+                            <input type="text" name="card-number-55555" id="card-number-55555" value="4242424242424242">
+                            <input type="text" name="last-four-digits" id="last-four-digits" value="">
                             <div class="row">
                                 <div class="col-xl-4 col-lg-4">
                                     <div class="form-group">
@@ -58,6 +59,8 @@
         const form = document.getElementById('payment-form')
         const cardBtn = document.getElementById('card-button')
         const cardHolderName = document.getElementById('card-holder-name')
+        const lastFourDigitsInput = document.getElementById('last-four-digits');
+        const lastFourDigitsDisplay = document.getElementById('last-four-digits-display');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault()
@@ -77,6 +80,28 @@
             if(error) {
                 cardBtn.disable = false
             } else {
+
+                const lastFourDigits = setupIntent.payment_method.substr(-4);
+                lastFourDigitsInput.value = lastFourDigits;
+                console.log(lastFourDigits);
+              /*  // Use setupIntent.payment_method to submit the payment
+                const paymentMethodId = setupIntent.payment_method;
+
+                // Retrieve the payment method details from Stripe
+                const paymentMethod = await stripe.retrievePaymentMethod(paymentMethodId);
+
+                if (paymentMethod && paymentMethod.card && paymentMethod.card.last4) {
+                    // Extract the last 4 digits of the card number
+                    const lastFourDigits = paymentMethod.card.last4;
+
+                    // Set the last 4 digits in the hidden input field
+                    lastFourDigitsInput.value = lastFourDigits;
+
+                    // Display the last 4 digits in the HTML element
+                    lastFourDigitsDisplay.textContent = `Last 4 Digits: ${lastFourDigits}`;
+                    console.log(lastFourDigits);
+                }*/
+
                 let token = document.createElement('input')
                 token.setAttribute('type', 'hidden')
                 token.setAttribute('name', 'token')
