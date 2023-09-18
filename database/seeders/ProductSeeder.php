@@ -12,7 +12,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $products = [
+        $productsValues = [
             [
                 'name' => 'Product 1',
                 'slug' => 'product_1',
@@ -31,8 +31,9 @@ class ProductSeeder extends Seeder
             ]
         ];
 
-        foreach ($products as $product) {
-            Product::create($product);
+        foreach ($productsValues as $productsValue) {
+            $product = Product::make(['name' => $productsValue]);
+            $product->saveOrFail();
         }
     }
 }

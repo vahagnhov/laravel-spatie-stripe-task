@@ -26,8 +26,10 @@ class ProductController extends Controller
      * Display a listing of the resource.
      *
      */
-    public function index(): View
+    public function index(Product $product): View
     {
+        $this->authorize('index', $product);
+
         $products = $this->productRepository->getProducts();
 
         return view("products", compact("products"));
@@ -36,8 +38,10 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product, Request $request): View
+    public function show(Product $product): View
     {
+        $this->authorize('show', $product);
+
         $intent = auth()->user()->createSetupIntent();
 
         return view("purchase", compact("product", "intent"));
@@ -45,6 +49,8 @@ class ProductController extends Controller
 
     public function purchase(Request $request): View
     {
+        $this->authorize('purchase', $request->product);
+
         $product = $this->productRepository->findData($request->product);
 
         $request->user()->newSubscription($request->product, $product->stripe_product)

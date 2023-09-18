@@ -15,6 +15,20 @@
                     @endif
 
                     {{ __('You are logged in!') }}
+
+                        <div class="alert alert-info">
+                            @if ($user->hasRole(\App\Constants\Roles::B2C_CUSTOMER) || $user->hasRole(\App\Constants\Roles::B2B_CUSTOMER))
+                                <p><strong>Purchase Details:</strong> </p>
+                                <p> {{ $purchaseDetails }}</p>
+                            @endif
+
+                            @if ($canCancelPurchase)
+                                <form action="{{ route('cancel-purchase') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Cancel Purchase</button>
+                                </form>
+                            @endif
+                        </div>
                 </div>
             </div>
         </div>

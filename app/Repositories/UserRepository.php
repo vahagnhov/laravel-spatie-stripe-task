@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Constants\Roles;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function assignUserRole(Request $request, string $type): bool
     {
-        $role = ($type === 'B2B') ? 'b2b_customer' : 'b2c_customer';
+        $role = ($type === 'B2B') ? Roles::B2B_CUSTOMER : Roles::B2C_CUSTOMER;
         $request->user()->assignRole($role);
         return true;
     }

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\HomeController;
+use App\Constants\Roles;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,10 +22,14 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::post('/cancel-purchase', [HomeController::class, 'cancelPurchase'])->name('cancel-purchase');
 
 Route::middleware("auth")->group(function () {
-    Route::get('products', [ProductController::class, 'index']);
-    Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show");
-    Route::post('purchase', [ProductController::class, 'purchase'])->name("purchase.create");
+    Route::get('products', [ProductController::class, 'index'])
+        ->middleware('role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER);
+    Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show")
+        ->middleware('role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER);
+    Route::post('purchase', [ProductController::class, 'purchase'])->name("purchase.create")
+        ->middleware('role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER);
 });
