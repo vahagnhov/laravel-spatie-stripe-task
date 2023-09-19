@@ -20,6 +20,6 @@ class StripeServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Stripe::setApiKey(config('services.stripe.secret'));
+        Stripe::setApiKey(config('cashier.secret'));
     }
 }

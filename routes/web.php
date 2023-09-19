@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Constants\Roles;
 
 /*
@@ -17,6 +18,7 @@ use App\Constants\Roles;
 |
 */
 Route::get('/', [IndexController::class, 'index'])->name('home');
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
 
 Auth::routes();
 

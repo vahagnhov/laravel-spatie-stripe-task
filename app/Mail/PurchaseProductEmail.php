@@ -4,32 +4,51 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class PurchaseProductEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    public $details;
 
     /**
      * Create a new message instance.
-     *
-     * @return void
      */
-    public function __construct($mailData)
+    public function __construct($details)
     {
-        $this->mailData = $mailData;
+        $this->details = $details;
     }
 
     /**
-     * Build the message.
-     *
-     * @return $this
+     * Get the message envelope.
      */
-    public function build()
+    public function envelope(): Envelope
     {
-        return $this->subject('Email From '.config('app.url'))
-            ->view('emails.purchase');
+        return new Envelope(
+            subject: 'Email about purchasing a product from '.config('app.url'),
+        );
+    }
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.purchase',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
     }
 }

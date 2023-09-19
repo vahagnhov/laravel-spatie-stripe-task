@@ -68,29 +68,39 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 ## I chose to use the Laravel Cashier package for Stripe integration in my project. Here's why:
 
 In my opinion, this package is most suitable for our task. Laravel Cashier is a package specifically designed for 
-Laravel applications to simplify subscription billing with Stripe.
-It provides a higher-level abstraction that integrates seamlessly with Laravel's ecosystem.
+Laravel applications to simplify subscription billing with Stripe. It provides a higher-level abstraction that 
+integrates seamlessly with Laravel's ecosystem.
 I chose Laravel Cashier for its seamless integration with Laravel, which simplified our payment processing implementation.
 With Laravel Cashier, we could easily manage subscriptions, handle payment methods, and automate tasks like invoicing
 and dunning. This package not only streamlines the Stripe integration but also aligns perfectly with Laravel's
 developer-friendly ecosystem, making it a natural choice for our project.
 
 ## Stripe Configuration
-In order to integrate Stripe with this project, follow these steps to set up your Stripe API keys in the `.env` file:
+
+In order to integrate Stripe with this project, follow these steps to set up your Stripe API keys and webhook secret key
+(for protect incoming requests with Cashier's included webhook signature verification middleware) in the `.env` file: 
+To listen to Stripe events, you will need a secure webhook URL with https. If you are on a local server with http then 
+you can use ngrok or any similar tool for this and then in your account dashboard on this page 
+https://dashboard.stripe.com/test/webhooks/create you can create Webhook URL or you can do it from your project folder
+running this command replacing the secure webhook URL and add /stripe/webhook
+
+    php artisan cashier:webhook --url "https://your-ngrok-url.com/stripe/webhook"
 
 1. Open the `.env` file in the root directory of your project.
 
-2. Locate the following lines and replace them with your actual Stripe API keys:
+2. Locate the following lines and replace them with your actual Stripe API keys and webhook secret key:
 
    `.env`
    STRIPE_KEY=your_publishable_key
    STRIPE_SECRET=your_secret_key
+   STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
 
 3. Save the `.env` file.
 
 ###### Now, your Laravel project is configured to use your Stripe account for payment processing and subscriptions.
 
 **Note:** Ensure that you keep your `.env` file secure and do not share it publicly, as it contains sensitive information.
+
 
 ## You will need to create two products in your Stripe account, then open .env and replace those values before seeding.
    

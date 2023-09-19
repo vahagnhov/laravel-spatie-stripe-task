@@ -16,6 +16,6 @@ return [
     'choose' => 'Choose',
     'you_will_be_charged' => 'You will be charged',
     'for_product' => ' for Product - ',
-    'card_details' => 'card_details',
+    'card_details' => 'Card Details',
 
 ];

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductPurchaseFormRequest;
-use App\Mail\PurchaseProductEmail;
+use App\Jobs\SendPurchaseProductEmailJob;
 use App\Models\Product;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Laravel\Cashier\Exceptions\IncompletePayment;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 
@@ -68,32 +68,35 @@ class ProductController extends Controller
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
 
+        $details = [
+            'user_name' => $request->name,
+            'email' => $request->user()->email,
+        ];
+
         try {
             $request->user()->newSubscription($request->product, $product->stripe_product)
                 ->create($request->token);
-            // Subscription was created successfully, you can add success handling here.
+        } catch (IncompletePayment $exception) {
+            return redirect()->route(
+                'purchase.create',
+                [$exception->payment->id, 'redirect' => route('home')]
+            );
         } catch (CardException $e) {
             // Handle card-related errors (e.g., invalid card number, insufficient funds).
-            // You can log the error, provide a user-friendly message, or redirect the user to a payment page.
             return redirect()->back()->with('error', $e->getMessage());
         } catch (InvalidRequestException $e) {
             // Handle invalid request errors (e.g., invalid parameters).
-            // You can log the error, provide a user-friendly message, or take appropriate action.
             $errorMessage = trans('product/messages.purchased_error');
             return redirect()->back()->with('error', $errorMessage);
         } catch (\Exception $e) {
             // Handle other unexpected exceptions.
-            // You can log the error, provide a user-friendly message, or take appropriate action.
             $errorMessage = trans('product/messages.purchased_other_error');
             return redirect()->back()->with('error', $errorMessage);
         }
 
-        $mailData = [
-            'user_name' => $request->name,
-        ];
 
         try {
-            Mail::to($request->user()->email)->send(new PurchaseProductEmail($mailData));
+            dispatch(new SendPurchaseProductEmailJob($details));
         } catch (\Throwable $exception) {
             Log::error($exception);
         }
@@ -101,6 +104,6 @@ class ProductController extends Controller
         $this->userRepository->assignUserRole($request, $product->product_type);
 
         $successMessage = trans('product/messages.purchased_success');
-        return redirect()->route('home')->with('success',$successMessage);
+        return redirect()->route('home')->with('success', $successMessage);
     }
 }

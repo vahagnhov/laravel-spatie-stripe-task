@@ -123,8 +123,6 @@ return [
     'logger' => env('CASHIER_LOGGER'),
     'stripe' => [
         'model' => App\Models\User::class,
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
         'products' => [
             'product_1' => env('STRIPE_PRODUCT_1'),
             'product_2' => env('STRIPE_PRODUCT_2'),
