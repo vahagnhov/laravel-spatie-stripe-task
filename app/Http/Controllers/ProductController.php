@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductPurchaseFormRequest;
 use App\Mail\PurchaseProductEmail;
 use App\Models\Product;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
@@ -10,7 +11,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Stripe\Exception\CardException;
+use Stripe\Exception\InvalidRequestException;
 
 class ProductController extends Controller
 {
@@ -36,7 +40,7 @@ class ProductController extends Controller
 
         $products = $this->productRepository->getProducts();
 
-        return view("products", compact("products"));
+        return view("products.index", compact("products"));
     }
 
     /**
@@ -48,18 +52,41 @@ class ProductController extends Controller
 
         $intent = auth()->user()->createSetupIntent();
 
-        return view("purchase", compact("product", "intent"));
+        return view("products.purchase", compact("product", "intent"));
     }
 
 
-    public function purchase(Request $request): RedirectResponse
+    public function purchase(Request $request, ProductPurchaseFormRequest $purchaseFormRequest): RedirectResponse
     {
         $product = $this->productRepository->findData($request->product);
 
         $this->authorize('purchase', $product);
 
-        $request->user()->newSubscription($request->product, $product->stripe_product)
-            ->create($request->token);
+        try {
+            $purchaseFormRequest->validated();
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
+
+        try {
+            $request->user()->newSubscription($request->product, $product->stripe_product)
+                ->create($request->token);
+            // Subscription was created successfully, you can add success handling here.
+        } catch (CardException $e) {
+            // Handle card-related errors (e.g., invalid card number, insufficient funds).
+            // You can log the error, provide a user-friendly message, or redirect the user to a payment page.
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (InvalidRequestException $e) {
+            // Handle invalid request errors (e.g., invalid parameters).
+            // You can log the error, provide a user-friendly message, or take appropriate action.
+            $errorMessage = trans('product/messages.purchased_error');
+            return redirect()->back()->with('error', $errorMessage);
+        } catch (\Exception $e) {
+            // Handle other unexpected exceptions.
+            // You can log the error, provide a user-friendly message, or take appropriate action.
+            $errorMessage = trans('product/messages.purchased_other_error');
+            return redirect()->back()->with('error', $errorMessage);
+        }
 
         $mailData = [
             'user_name' => $request->name,
@@ -73,6 +100,7 @@ class ProductController extends Controller
 
         $this->userRepository->assignUserRole($request, $product->product_type);
 
-        return redirect()->route('home')->withSuccess('Product successfully purchased!');
+        $successMessage = trans('product/messages.purchased_success');
+        return redirect()->route('home')->with('success',$successMessage);
     }
 }

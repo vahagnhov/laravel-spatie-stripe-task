@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\IndexController;
+use App\Http\Controllers\DashboardController;
 use App\Constants\Roles;
 
 /*
@@ -15,21 +16,14 @@ use App\Constants\Roles;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [IndexController::class, 'index'])->name('home');
 
 Auth::routes();
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::post('/cancel-purchase', [HomeController::class, 'cancelPurchase'])->name('cancel-purchase');
-
-Route::middleware("auth")->group(function () {
-    Route::get('products', [ProductController::class, 'index'])
-        ->middleware('role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER);
-    Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show")
-        ->middleware('role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER);
-    Route::post('purchase', [ProductController::class, 'purchase'])->name("purchase.create")
-        ->middleware('role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER);
+Route::middleware(['auth', 'role:' . Roles::B2B_CUSTOMER . '|' . Roles::B2C_CUSTOMER])->group(function () {
+    Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show");
+    Route::post('purchase', [ProductController::class, 'purchase'])->name("purchase.create");
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/cancel-purchase', [DashboardController::class, 'cancelPurchase'])->name('cancel-purchase');
 });

@@ -1,6 +1,6 @@
 @extends('layouts.email')
 
 @section('content')
-    <h1>Hello, {{ $mailData['user_name'] }}</h1>
-    <p>Your {{ $mailData['access'] }} is closed by the administrator!</p>
+    <h1>@lang('email/texts.hello'), {{ $mailData['user_name'] }}</h1>
+    <p> {{ $mailData['access'] }} >@lang('email/texts.access_closed_by_admin')</p>
 @endSection
