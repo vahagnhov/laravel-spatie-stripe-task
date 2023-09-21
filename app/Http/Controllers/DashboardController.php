@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Constants\Permission;
 use App\Constants\Roles;
+use App\Services\StripeService;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Cashier\Cashier;
+use Stripe\Invoice;
 
 class DashboardController extends Controller
 {
+    protected $stripe;
+
+    public function __construct(StripeService $stripe)
+    {
+        $this->stripe = $stripe;
+    }
+
     /**
      * Show the application dashboard.
      *
@@ -16,27 +24,13 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $lastFourDigits = '';
-        // Get the authenticated user
         $user = Auth::user();
-
-        // Retrieve the Stripe customer ID associated with the user
-        $stripeCustomerId = $user->stripe_id;
-
-        // Retrieve the customer from Stripe
-        $stripeCustomer = Cashier::findBillable($stripeCustomerId);
-
-        // Get the default payment method (source) for the customer
-        if ($stripeCustomer) {
-            $defaultPaymentMethod = $stripeCustomer->defaultPaymentMethod();
-            // Retrieve the card details, including the last 4 digits
-            $paymentMethod = $stripeCustomer->findPaymentMethod($defaultPaymentMethod->id);
-            $cardDetails = $paymentMethod->card;
-            $lastFourDigits = $cardDetails->last4;
-        }
-
+        $lastFourDigits = $user->pm_last_four;
         $lastFourDigitsOfText = trans('dashboard/messages.last_four_digits_of');
         $cardNumberText = trans('dashboard/messages.card_number');
+
+        $subscriptions = $user->subscriptions()->get();
+        $subscribed = $subscriptions[0]->ends_at;
 
         if ($user->hasRole(Roles::B2C_CUSTOMER) && $lastFourDigits) {
             $purchaseDetails = "$lastFourDigitsOfText B2C $cardNumberText: $lastFourDigits";
@@ -46,16 +40,29 @@ class DashboardController extends Controller
             $purchaseDetails = trans('dashboard/messages.no_purchase');
         }
 
-        $canCancelPurchase = $user->can(Permission::CANCEL_PURCHASE);
+        $canCancelPurchase = $user->can(Permission::CANCEL_PURCHASE) && !$subscribed;
         return view('dashboard.index', compact('user', 'purchaseDetails', 'canCancelPurchase'));
     }
 
     public function cancelPurchase()
     {
-        // Check if the user can cancel the purchase using policies or gates
-        if (Auth::user()->can(Permission::CANCEL_PURCHASE)) {
-            // Perform cancellation logic here
-            // Redirect or return a response as needed
+        $user = Auth::user();
+
+        if ($user->can(Permission::CANCEL_PURCHASE)) {
+
+            $invoices = Auth::user()->invoices();
+            foreach ($invoices as $invoice) {
+                $invoiceId = $invoice->id;
+                // Access the subscription ID associated with the invoice
+                $stripeInvoice = Invoice::retrieve($invoiceId);
+                $subscriptionId = $stripeInvoice->subscription;
+                try {
+                    $this->stripe->cancelPurchase($subscriptionId);
+                    return redirect()->back()->with('success', trans('dashboard/messages.purchase_canceled'));
+                } catch (\Throwable $e) {
+                    return redirect()->back()->with('error', trans('dashboard/messages.cancellation_failed'));
+                }
+            }
         } else {
             abort(403, trans('dashboard/messages.unauthorized'));
         }

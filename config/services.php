@@ -1,5 +1,7 @@
 <?php
 
+use Laravel\Cashier\Console\WebhookCommand;
+
 return [
 
     /*
@@ -29,6 +31,20 @@ return [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+    'stripe' => [
+        'model' => App\Models\User::class,
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook' => [
+            'secret' => env('STRIPE_WEBHOOK_SECRET'),
+            'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
+            'events' => WebhookCommand::DEFAULT_EVENTS,
+        ],
+        'products' => [
+            'product_1' => env('STRIPE_PRODUCT_1'),
+            'product_2' => env('STRIPE_PRODUCT_2'),
+        ]
     ],
 
 ];

@@ -12,7 +12,10 @@ class StripeServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('stripe', function () {
+            Stripe::setApiKey(config('cashier.key'));
+            return new Stripe();
+        });
     }
 
     /**

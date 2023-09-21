@@ -13,7 +13,7 @@ class StripeWebhookController extends Controller
         $event = Webhook::constructEvent(
             $request->getContent(),
             $request->header('stripe-signature'),
-            config('services.stripe.webhook_secret')
+            config('cashier.webhook.secret')
         );
 
         // Handle the specific event types.

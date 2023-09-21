@@ -15,4 +15,6 @@ return [
     'card_number' => 'card number',
     'no_purchase' => 'No purchase details available',
     'unauthorized' => 'Unauthorized',
+    'purchase_canceled' => 'Purchase canceled!',
+    'cancellation_failed' => 'Cancellation failed!',
 ];

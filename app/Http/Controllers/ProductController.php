@@ -40,6 +40,23 @@ class ProductController extends Controller
 
         $products = $this->productRepository->getProducts();
 
+        /* Retrieve products directly from stripe
+         $products = [];
+        $prices = Price::all();
+        foreach ($prices->data as $price) {
+            // Access the price information
+            //$priceId = $price->id;
+            $amount = $price->unit_amount / 100; // Convert amount from cents to dollars
+            $currency = $price->currency;
+
+            // Access the product associated with the price
+            $product = \Stripe\Product::retrieve($price->product);
+            dd($product);
+            // Access the product information
+            $productId = $product->id;
+            $productName = $product->name;
+            $products[] = ['id'=>$productId, 'name' => $productName,'price' => $currency."".$amount];
+        }*/
         return view("products.index", compact("products"));
     }
 
@@ -68,14 +85,10 @@ class ProductController extends Controller
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
 
-        $details = [
-            'user_name' => $request->name,
-            'email' => $request->user()->email,
-        ];
-
         try {
             $request->user()->newSubscription($request->product, $product->stripe_product)
                 ->create($request->token);
+            //dispatch(new PurchaseProductJob($details));
         } catch (IncompletePayment $exception) {
             return redirect()->route(
                 'purchase.create',
@@ -94,6 +107,10 @@ class ProductController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
 
+        $details = [
+            'user_name' => $request->name,
+            'email' => $request->user()->email,
+        ];
 
         try {
             dispatch(new SendPurchaseProductEmailJob($details));
